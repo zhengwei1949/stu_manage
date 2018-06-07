@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap 101 Template</title>
+    <link href="./lib/css/bootstrap.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: '微软雅黑';
+        }
+
+        thead {
+            background-color: #f5f5f5;
+            /*font-weight: 700;*/
+        }
+
+        th {
+            text-align: center;
+        }
+
+        .pagination {
+            margin: 0;
+        }
+
+        .control:hover {
+            background: transparent!important;
+            /*cursor: not-allowed;  */
+        }
+
+        tbody td {
+            text-align: center;
+        }
+
+        .panel {
+            position: relative;
+        }
+
+        .panel::before {
+            content: '';
+            width: 100%;
+            height: 100%;
+            background: url('./images/loading.gif')no-repeat center, rgba(88, 101, 181, 0.8);
+            position: absolute;
+            z-index: 10;
+            display: none;
+        }
+
+        .panel.cover::before {
+            display: block;
+        }
+
+        /* a标签的禁用样式 */
+
+        a.disabled {
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1>后台管理系统
+                <small>--讲师管理</small>
+            </h1>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">讲师列表</div>
+            <div class="panel-body">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>姓名</th>
+                            <th>年龄</th>
+                            <th>昵称</th>
+                            <th>学校</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+                <div>
+                    <nav aria-label="Page navigation">
+                        <button class="btn btn-default" data-toggle="modal" data-target="#addModal">新增</button>
+                        <ul class="pagination pull-right">
+
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 新增弹出框 -->
+    <div id='addModal' class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">新增窗口</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="newUser">
+                        <div class="form-group">
+                            <label for="inputUserName">用户名</label>
+                            <input name='username' type="text" class="form-control" id="inputUserName" placeholder="请输入用户名">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputUserPass">密码</label>
+                            <input name='password' type="password" class="form-control" id="inputUserPass" placeholder="请输入密码">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputName">真实姓名</label>
+                            <input name='name' type="text" class="form-control" id="inputName" placeholder="请输入真实姓名">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputSchool">学校</label>
+                            <input name='school' type="text" class="form-control" id="inputSchool" placeholder="请输入学校">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputAge">年龄</label>
+                            <input name='age' type="text" class="form-control" id="inputAge" placeholder="请输入年龄">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancel" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" id="save" class="btn btn-primary" data-dismiss="modal">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./lib/js/jquery-1.12.4.js"></script>
+    <script src="./lib/js/bootstrap.min.js"></script>
+    <script src="./lib/js/template-native.js"></script>
+    <script type="text/template" id="stuListTemp">
+        <%for(var i = 0;i< list.length;i++){%>
+            <tr>
+                <td><%=(pageNum -1) * pageSize + i + 1%></td>
+                <td><%=list[i].name%></td>
+                <td><%=list[i].age%></td>
+                <td><%=list[i].username%></td>
+                <td><%=list[i].school%></td>
+                <td><a href="javascript:;" data-id="<%=list[i].id%>" class="delete" title="删除"><span class="glyphicon glyphicon-remove"></span></a></td>
+            </tr>
+        <%}%>
+    </script>
+    <script type="text/template" id="pageTemp">
+        <li>
+            <!--如果是第一页则禁用-->
+            <a class="prev <%=pageNum==1?'disabled':''%>" href="javascript:void(0)" aria-label="Previous" data-page="<%=pageNum - 1%>">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        <li><a class='control curr' href="javascript:void(0)"><%=pageNum%></a></li>
+        <li><a class='control' href="javascript:void(0)">/</a></li>
+        <li><a class='control total' href="javascript:void(0)"><%=totalPage%></a></li>
+        <li>
+            <a class="next <%=pageNum==totalPage?'disabled':''%>" href="javascript:void(0)" aria-label="Next" data-page="<%=pageNum + 1%>">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </script>
+    <script>
+        $(function () {
+            function render(cpage,pageSize){
+                $.ajax({
+                    type: "get",
+                    url: "findUsers.php",
+                    data: {
+                        pageNum: cpage || 1,
+                        pageSize: pageSize || 2 
+                    },
+                    dataType: "json",
+                    success: function (result) {
+                        console.log(result);
+                        /*展示数据列表*/
+                        var html = template('stuListTemp', result);
+                        $('tbody').html(html);
+
+                        //渲染分页结构
+                        var pageHtml = template('pageTemp', { 'pageNum': result.pageNum, 'totalPage': Math.ceil(result.total / result.pageSize) });
+                        $(".pagination").html(pageHtml);
+                    }
+                });
+            }
+            render();
+            
+            /*实现下一页和上一页操作*/
+            $(".pagination").on('click', 'a', function () {
+                /*如果当前a标签有disabled样式，不用处理*/
+                if ($(this).hasClass('disabled')) {
+                    return;
+                }
+                if ($(this).hasClass('prev') || $(this).hasClass('next')) {
+                    console.log(2)
+                    //var pageNum = this.dataset['page'];
+                    //var pageNum = $(this).data('page');
+                    var pageNum = $(this).attr('data-page');
+                    /*展示新的页的数据*/
+                    render(pageNum);
+                }
+            });
+
+            /*数据添加*/
+            $("#save").on('click', function () {
+                $.ajax({
+                    type: 'post',
+                    url: 'saveUser.php',
+                    data: $("#newUser").serialize(),
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result.status == "ok") {
+                            /*reset：js原生方法*/
+                            // $("#newUser")[0].reset();
+                            /*数据是降序排序的，所以直接刷新第一页*/
+                            render();
+                        }
+                    }
+                });
+            });
+
+
+            /*数据删除*/
+            $("tbody").on("click", '.delete', function () {
+                /*询问用户是否想删除*/
+                if (window.confirm('是否真的删除')) {
+                    /*删除需要一个唯一标识*/
+                    var id = $(this).data('id');
+                    $.ajax({
+                        type: 'post',
+                        url: 'removeUser.php',
+                        data: { 'id': id },
+                        /*如果服务器返回的是json格式的字符串，但是服务器端设置的ContentType为text/html,那么在使用ajax的时候可以将dataType设置了json,那么它会自动的将字符串转换为js对象*/
+                        dataType: 'json',
+                        success: function (result) {
+                            /*判断删除是否成功*/
+                            if (result.status == "ok") {
+                                /*说明在页面刷新之前，表格的数据行只有一行记录，但是这条记录本质上已经被删除了，只不过页面中没有刷新而已，意味着如果刷新，当前页应该没有任何记录了。刷新的时候就只能刷新上一页*/
+                                if ($("tbody").children().length == 1) {
+                                    if (window.pageNum == 1) {
+                                        render(window.pageNum);
+                                        return;
+                                    }
+                                    render(window.pageNum - 1);
+                                } else {
+                                    render(window.pageNum);
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
